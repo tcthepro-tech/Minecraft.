@@ -1,0 +1,43 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "nx:watcher",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "components": {
+      "minecraft:type_family": { "family": ["nx_presence", "inanimate"] },
+      "minecraft:collision_box": { "width": 0.6, "height": 2.7 },
+      "minecraft:health": { "value": 1024, "max": 1024 },
+
+      "_comment_movement": "Speed is zero and there is no navigation or behaviour component anywhere in this file. The Watcher physically cannot walk; every position it has ever occupied was set by a teleport in an unobserved frame.",
+      "minecraft:movement": { "value": 0 },
+
+      "_comment_physics": "Gravity off so it cannot drift, settle or fall after placement. The script guarantees it is standing on something solid.",
+      "minecraft:physics": { "has_gravity": false, "has_collision": false },
+      "minecraft:pushable": { "is_pushable": false, "is_pushable_by_piston": false },
+      "minecraft:knockback_resistance": { "value": 1000, "max": 1000 },
+
+      "_comment_inert": "It cannot be hurt, cannot burn, cannot drown, and never makes a sound of its own. There is no aggro state to enter because there is no combat surface at all.",
+      "minecraft:damage_sensor": {
+        "triggers": [{ "cause": "all", "deals_damage": false }]
+      },
+      "minecraft:fire_immune": true,
+      "minecraft:breathable": {
+        "total_supply": 15,
+        "suffocate_time": -1,
+        "breathes_air": true,
+        "breathes_water": true,
+        "breathes_lava": true,
+        "generates_bubbles": false
+      },
+      "minecraft:sound_volume": { "value": 0 },
+
+      "_comment_lifecycle": "Persistence is owned entirely by the script, which removes it only in frames where no player can see it.",
+      "minecraft:persistent": {},
+      "minecraft:loot": { "table": "loot_tables/empty.json" }
+    }
+  }
+}

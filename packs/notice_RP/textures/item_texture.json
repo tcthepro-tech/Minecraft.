@@ -1,0 +1,9 @@
+{
+  "resource_pack_name": "notice",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "nx_tallow_candle": {
+      "textures": "textures/items/tallow_candle"
+    }
+  }
+}

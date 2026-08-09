@@ -1,0 +1,29 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "nx:kindler",
+      "min_engine_version": "1.21.20",
+      "materials": {
+        "default": "entity_emissive_alpha"
+      },
+      "textures": {
+        "default": "textures/entity/kindler"
+      },
+      "geometry": {
+        "default": "geometry.nx_kindler"
+      },
+      "animations": {
+        "flicker": "animation.nx_kindler.flicker"
+      },
+      "scripts": {
+        "animate": [
+          "flicker"
+        ]
+      },
+      "render_controllers": [
+        "controller.render.nx_kindler"
+      ]
+    }
+  }
+}
