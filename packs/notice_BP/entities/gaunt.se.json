@@ -2,15 +2,15 @@
   "format_version": "1.21.0",
   "minecraft:entity": {
     "description": {
-      "identifier": "nx:watcher",
+      "identifier": "nx:gaunt",
       "is_spawnable": false,
       "is_summonable": true,
       "is_experimental": false,
-      "_comment_properties": "Entity properties are the only channel the script has to the client renderer. nx:maw drives the animation controller; nothing else about the model ever changes.",
+      "_comment": "The Gaunt is the Watcher's geometry at three times the scale. Same species, seen from a distance you cannot close -- which is the point of showing it to you at all.",
       "properties": {
-        "nx:maw": {
+        "nx:walking": {
           "type": "bool",
-          "default": false
+          "default": true
         }
       }
     },
@@ -21,20 +21,19 @@
           "inanimate"
         ]
       },
-      "_comment_size": "The model is 53 units (3.3 blocks) from hoof to horn tip. Scaled to 0.9 it stands just under three blocks, so it fits the same cave ceiling a player does -- and the anchor finder only has to guarantee three blocks of headroom.",
+      "_comment_size": "Roughly ten blocks tall. Never within 45 blocks of a player, so the collision box is academic -- but it is kept honest anyway.",
       "minecraft:scale": {
-        "value": 0.9
+        "value": 3.0
       },
       "minecraft:collision_box": {
-        "width": 0.8,
-        "height": 2.95
+        "width": 1.6,
+        "height": 9.0
       },
       "minecraft:health": {
-        "value": 1024,
-        "max": 1024
+        "value": 4096,
+        "max": 4096
       },
-      "_comment_movement": "Speed is zero and there is no navigation or behaviour component anywhere in this file. The Watcher physically cannot walk; every position it has ever occupied was set by a teleport in an unobserved frame. Gravity is off so it cannot drift, settle or fall after placement.",
-      "_comment_inert": "It cannot be hurt, burn, drown or be pushed, and it never makes a sound of its own. There is no aggro state to enter because there is no combat surface at all.",
+      "_comment_movement": "It walks, but not under its own power: speed is zero and the script advances it by small teleports each tick, following the terrain. That keeps its path entirely under script control, so it can be guaranteed never to close on the player.",
       "minecraft:damage_sensor": {
         "triggers": [
           {

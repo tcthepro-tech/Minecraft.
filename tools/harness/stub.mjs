@@ -133,6 +133,9 @@ class Dimension {
     if (options.families) {
       list = list.filter((e) => options.families.some((f) => e.families.includes(f)));
     }
+    if (options.tags) {
+      list = list.filter((e) => options.tags.every((t) => e.tags.has(t)));
+    }
     if (options.location && options.maxDistance !== undefined) {
       list = list.filter((e) => distance(e.location, options.location) <= options.maxDistance);
     }
@@ -174,6 +177,8 @@ class Entity {
     this.tags = new Set();
     this.families = [];
     this.props = new Map();
+    this.properties = new Map();
+    this.effects = [];
     this.removed = false;
     /** Every position this entity has ever occupied, with the tick it moved. */
     this.history = [{ tick: system.currentTick, ...this.location }];
@@ -195,6 +200,17 @@ class Entity {
     this.props.set(k, v);
   }
   clearVelocity() {}
+  /** Entity properties: the script->renderer channel. */
+  setProperty(name, value) {
+    this.properties.set(name, value);
+  }
+  getProperty(name) {
+    return this.properties.get(name);
+  }
+  addEffect(type, duration, options) {
+    this.effects.push({ type, duration, ...options });
+    return true;
+  }
   teleport(location, options = {}) {
     const moved =
       Math.abs(location.x - this.location.x) > 1e-6 ||

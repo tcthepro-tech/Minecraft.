@@ -3,7 +3,7 @@ import { WATCHER, NOTICE, PROP, SFX } from "./config.js";
 import * as Notice from "./notice.js";
 import {
   v3, dist, distXZ, clamp, rand, randInt,
-  safeBlock, isSolid, isOpen, lineOfSight, coneDot, canSee, seesSky, playSafe,
+  safeBlock, isSolid, isOpen, lineOfSight, coneDot, canSee, seesSky, playSafe, setProp,
 } from "./util.js";
 
 /**
@@ -48,6 +48,8 @@ function stateFor(player) {
       readyToLeave: false,
       cooldownUntil: 0,
       nextCycle: 0,
+      maw: false,
+      forceClose: false,
     };
     states.set(player.id, s);
   }
@@ -274,6 +276,8 @@ function place(player, players, state) {
   state.lastStareCredit = 0;
   state.seen = false;
   state.readyToLeave = false;
+  state.maw = false;
+  setProp(entity, "nx:maw", false);
   return true;
 }
 
@@ -307,6 +311,7 @@ function vanish(state, entity, escalate) {
   state.stareTicks = 0;
   state.seen = false;
   state.readyToLeave = false;
+  state.maw = false;
   state.cooldownUntil = system.currentTick + WATCHER.COOLDOWN[tier];
 }
 
@@ -385,6 +390,19 @@ function cycle(player, players) {
       state.lastStareCredit = state.stareTicks;
       Notice.add(player, NOTICE.STARE_GAIN);
     }
+
+    // The single exception to "it never animates". Silent, late in a stare,
+    // and only near the top of the curve.
+    if (
+      !state.maw &&
+      notice >= WATCHER.MAW_MIN_NOTICE &&
+      state.stareTicks >= WATCHER.MAW_AFTER &&
+      Math.random() < WATCHER.MAW_CHANCE
+    ) {
+      state.maw = true;
+      setProp(entity, "nx:maw", true);
+    }
+
     if (state.stareTicks >= WATCHER.STARE_LIMIT) state.readyToLeave = true;
     return;
   }
@@ -407,6 +425,13 @@ function cycle(player, players) {
   if (notice < WATCHER.THRESHOLD * 0.6) {
     vanish(state, entity, false);
     return;
+  }
+
+  // A stare that ended without the maw ever opening should not leave the
+  // property latched for the next appearance.
+  if (state.maw) {
+    state.maw = false;
+    setProp(entity, "nx:maw", false);
   }
 
   // Step 1-3 — pick an anchor at the permitted radius and teleport into it.
@@ -459,6 +484,41 @@ export function forget(playerId) {
     }
   }
   states.delete(playerId);
+}
+
+/**
+ * Bring it in to the floor of its permitted range for one placement.
+ *
+ * The "closer" incident calls this. It relaxes the target radius, not the
+ * safety rules — the relocation still goes through selectAnchor, which still
+ * refuses any position a player can see, and still refuses to come inside
+ * MIN_ABSOLUTE. An incident may make the Watcher bolder; it may never make it
+ * visible in motion.
+ */
+export function forceClose(player) {
+  const state = states.get(player.id);
+  if (!state?.entityId) return false;
+  const entity = entityOf(state);
+  if (!entity) return false;
+
+  const players = world.getAllPlayers();
+  if (observedByAnyone(entity.dimension, entity.location, players)) return false;
+
+  const saved = state.tier;
+  state.tier = 0; // drop the stealth bonus so the radius collapses to its floor
+  const moved = relocate(player, players, state, entity);
+  state.tier = saved;
+  return moved;
+}
+
+/** Open the maw of a Watcher that is already being looked at. */
+export function forceMaw(player) {
+  const state = states.get(player.id);
+  if (!state?.entityId || !state.seen || state.maw) return false;
+  const entity = entityOf(state);
+  if (!entity) return false;
+  state.maw = true;
+  return setProp(entity, "nx:maw", true);
 }
 
 export function stealthTier(player) {

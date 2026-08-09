@@ -6,6 +6,8 @@ import * as Support from "./support.js";
 import * as Atmosphere from "./atmosphere.js";
 import * as Structures from "./structures.js";
 import * as Counterplay from "./counterplay.js";
+import * as Gaunt from "./gaunt.js";
+import * as Events from "./events.js";
 
 /**
  * Notice — wiring.
@@ -29,6 +31,8 @@ function boot() {
   // Anything left over from a reload has no owner and must not persist.
   Watcher.sweep();
   Support.sweep();
+  Gaunt.sweep();
+  Events.sweep();
 
   for (const player of world.getAllPlayers()) Notice.ensure(player);
 }
@@ -54,13 +58,18 @@ system.runInterval(() => {
   Watcher.tick(players);
   Support.tick(players);
   Structures.tick(players);
+  Events.tick(players);
 }, NOTICE.EVAL_INTERVAL);
 
 // --- Fast loop: perception only ---------------------------------------------
 
 system.runInterval(() => {
   const players = world.getAllPlayers();
-  if (players.length > 0) Atmosphere.fastTick(players);
+  if (players.length === 0) return;
+  Atmosphere.fastTick(players);
+  // The Gaunt strides every tick. At a tenth of a block a step, teleporting is
+  // indistinguishable from walking; at one-second granularity it would not be.
+  Gaunt.tick(players);
 }, 1);
 
 // --- Events -----------------------------------------------------------------
@@ -76,6 +85,8 @@ world.afterEvents.playerSpawn.subscribe((event) => {
 world.afterEvents.playerLeave.subscribe((event) => {
   Notice.forgetLightScan(event.playerId);
   Watcher.forget(event.playerId);
+  Gaunt.forget(event.playerId);
+  Events.forget(event.playerId);
   Support.forget(event.playerId);
   Structures.forget(event.playerId);
   Atmosphere.forget(event.playerId);

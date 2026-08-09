@@ -2,6 +2,7 @@ import { system } from "@minecraft/server";
 import { FOG, SFX, NOTICE } from "./config.js";
 import * as Notice from "./notice.js";
 import * as Watcher from "./watcher.js";
+import { isHushed } from "./events.js";
 import { clamp, lerp, rand, pick, playSafe, runSafe } from "./util.js";
 
 /**
@@ -47,6 +48,8 @@ function ambient(player, env) {
 
   if (Notice.get(player) < 10) return;
   if (env.daylight && Math.random() < 0.8) return;
+  // A `hush` incident is in progress: the bed stays out until it lifts.
+  if (isHushed(player)) return;
 
   const palette = [SFX.CAVE, SFX.CAVE, SFX.SETTLE];
   if (p > 0.35) palette.push(SFX.LISTEN);

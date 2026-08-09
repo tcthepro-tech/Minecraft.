@@ -123,6 +123,17 @@ def main():
             continue
         animations.update(doc.get("animations", {}).keys())
 
+    # Animation controllers live in their own folder but are referenced from
+    # the same `animations` map on a client entity, so they belong in the same
+    # namespace as far as reference checking is concerned.
+    controller_anims = {}
+    for path in sorted((RP / "animation_controllers").glob("*.json")):
+        doc = docs.get(path)
+        if not doc:
+            continue
+        controller_anims.update(doc.get("animation_controllers", {}))
+    animations.update(controller_anims.keys())
+
     for ident, desc in rp_ids.items():
         for key, geo in desc.get("geometry", {}).items():
             checks += 1
@@ -141,6 +152,38 @@ def main():
             checks += 1
             if anim not in animations:
                 fail(f"{ident}: animation '{anim}' is not defined")
+
+        # Anything named in scripts.animate has to resolve through the entity's
+        # own animations map, or it silently never plays.
+        for entry in desc.get("scripts", {}).get("animate", []):
+            checks += 1
+            key = entry if isinstance(entry, str) else next(iter(entry))
+            if key not in desc.get("animations", {}):
+                fail(f"{ident}: scripts.animate references '{key}', which is not "
+                     f"in its animations map")
+
+    # Every state a controller can transition to must exist, and every
+    # animation short name it plays must be one the entity actually declares.
+    for name, controller in controller_anims.items():
+        users = [d for d in rp_ids.values() if name in d.get("animations", {}).values()]
+        states = controller.get("states", {})
+        checks += 1
+        if controller.get("initial_state", "default") not in states:
+            fail(f"{name}: initial_state is not one of its states")
+        for state_name, state in states.items():
+            for transition in state.get("transitions", []):
+                for target in transition:
+                    checks += 1
+                    if target not in states:
+                        fail(f"{name}: state '{state_name}' transitions to "
+                             f"undefined state '{target}'")
+            for anim in state.get("animations", []):
+                short = anim if isinstance(anim, str) else next(iter(anim))
+                for desc in users:
+                    checks += 1
+                    if short not in desc.get("animations", {}):
+                        fail(f"{name}: state '{state_name}' plays '{short}', which "
+                             f"{desc['identifier']} does not declare")
 
     # --- geometry UV boxes stay inside the texture ---------------------------
     for path in sorted((RP / "models").rglob("*.geo.json")):

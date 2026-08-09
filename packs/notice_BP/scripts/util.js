@@ -164,6 +164,20 @@ export function playSafe(target, id, options) {
   }
 }
 
+/**
+ * Entity properties are the only channel from script to the client renderer.
+ * They arrived later than the rest of the API surface this pack uses, so a
+ * failure here degrades to "the animation never plays" rather than throwing.
+ */
+export function setProp(entity, name, value) {
+  try {
+    entity.setProperty(name, value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function runSafe(entity, command) {
   try {
     entity.runCommand(command);

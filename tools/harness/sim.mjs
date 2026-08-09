@@ -352,6 +352,137 @@ check(topOut !== null, "the curve must reach its top tier within 90 minutes");
 check(topOut > 60 * 10, `topping out must take real time (got ${(topOut / 60).toFixed(1)} min)`);
 
 // ---------------------------------------------------------------------------
+// Scenario 6 — the Gaunt never closes
+// ---------------------------------------------------------------------------
+//
+// The Watcher is bounded by a permitted radius it is allowed to approach. The
+// Gaunt is bounded by one it is not: whatever its heading, whatever the
+// terrain does to it, it may never come inside MIN_DISTANCE. It is the only
+// thing in the pack that moves under its own power in plain sight, so the
+// distance floor is the entire reason it is safe to show.
+
+console.log("\nscenario: the Gaunt walks, and never closes");
+
+const Gaunt = await import("../../packs/notice_BP/scripts/gaunt.js");
+const { GAUNT } = await import("../../packs/notice_BP/scripts/config.js");
+
+// Open sky: solid ground at y=63, nothing above it.
+const surface = world.addDimension(
+  new Dimension("sim:surface", (x, y, z) => (y <= 63 ? "minecraft:stone" : "minecraft:air"))
+);
+const walker = world.addPlayer(new Player("Walker", surface, { x: 0.5, y: 64, z: 0.5 }));
+walker.setDynamicProperty("nx:notice", 95);
+walker.setDynamicProperty("nx:floor", 0);
+
+// Force a spawn attempt rather than waiting out the seven-minute timer.
+let appeared = false;
+for (let i = 0; i < 200 && !appeared; i++) {
+  system.currentTick += 20000;
+  Gaunt.tick([walker]);
+  appeared = surface.getEntities({ type: GAUNT.ID }).length > 0;
+}
+check(appeared, "the Gaunt must spawn under open sky at high notice");
+
+let closest = Infinity;
+let furthest = 0;
+let moved = 0;
+let lastPos = null;
+let haltedAt = null;
+
+if (appeared) {
+  for (let tick = 0; tick < 2400; tick++) {
+    // The player watches it for a stretch in the middle, then looks away.
+    const staring = tick > 400 && tick < 700;
+    const g = surface.getEntities({ type: GAUNT.ID })[0];
+    if (g) {
+      if (staring) {
+        const dx = g.location.x - walker.location.x;
+        const dz = g.location.z - walker.location.z;
+        walker.rotation.y = (Math.atan2(-dx, dz) * 180) / Math.PI;
+      } else {
+        walker.rotation.y = 180 + (Math.atan2(-(g.location.x - walker.location.x),
+          g.location.z - walker.location.z) * 180) / Math.PI;
+      }
+    }
+
+    system.currentTick++;
+    Gaunt.tick([walker]);
+
+    const after = surface.getEntities({ type: GAUNT.ID })[0];
+    if (!after) break;
+    const d = Math.hypot(after.location.x - walker.location.x,
+      after.location.z - walker.location.z);
+    closest = Math.min(closest, d);
+    furthest = Math.max(furthest, d);
+    if (lastPos && (Math.abs(after.location.x - lastPos.x) > 1e-9 ||
+        Math.abs(after.location.z - lastPos.z) > 1e-9)) moved++;
+    lastPos = { ...after.location };
+    if (after.getProperty("nx:walking") === false && haltedAt === null) haltedAt = tick;
+  }
+}
+
+console.log(`  closest approach ${closest.toFixed(1)}m (floor is ${GAUNT.MIN_DISTANCE}m), ` +
+  `furthest ${furthest.toFixed(1)}m`);
+console.log(`  ${moved} stride ticks; halted at tick ${haltedAt ?? "never"}`);
+check(moved > 100, `the Gaunt must actually walk (got ${moved} stride ticks)`);
+check(closest >= GAUNT.MIN_DISTANCE - 0.5,
+  `the Gaunt must never come inside ${GAUNT.MIN_DISTANCE}m (got ${closest.toFixed(1)}m)`);
+check(haltedAt !== null, "sustained observation must stop it walking");
+
+// ---------------------------------------------------------------------------
+// Scenario 7 — incidents are gated, varied, and harmless
+// ---------------------------------------------------------------------------
+
+console.log("\nscenario: incidents are notice-gated and never repeat back to back");
+
+const Events = await import("../../packs/notice_BP/scripts/events.js");
+const { EVENTS } = await import("../../packs/notice_BP/scripts/config.js");
+
+function runIncidents(notice, seconds) {
+  const p = world.addPlayer(new Player(`Ev${notice}`, overworld, { x: 7000.5, y: 0, z: 7000.5 }));
+  p.setDynamicProperty("nx:notice", notice);
+  p.setDynamicProperty("nx:floor", 0);
+  const before = p.location.y;
+  let fired = 0;
+  const seen = new Set();
+  const soundsBefore = world.sounds.length;
+  for (let i = 0; i < seconds; i++) {
+    system.currentTick += 20;
+    const barsBefore = p.actionBars.length;
+    const sBefore = world.sounds.length;
+    const eBefore = p.effects.length;
+    Events.tick([p]);
+    if (world.sounds.length > sBefore || p.actionBars.length > barsBefore ||
+        p.effects.length > eBefore) fired++;
+  }
+  check(p.location.y === before, `incidents must never move the player (notice ${notice})`);
+  return { fired, sounds: world.sounds.length - soundsBefore };
+}
+
+const low = runIncidents(5, 400);
+console.log(`  notice 5  (below the ${EVENTS.THRESHOLD} threshold): ${low.fired} incidents`);
+check(low.fired === 0, "no incidents may fire below the threshold");
+
+const mid = runIncidents(35, 900);
+const high = runIncidents(95, 900);
+console.log(`  notice 35: ${mid.fired} incidents over 15 minutes`);
+console.log(`  notice 95: ${high.fired} incidents over 15 minutes`);
+check(mid.fired > 0, "incidents must fire at mid notice");
+check(high.fired >= mid.fired, "incidents must not get rarer as notice rises");
+
+// No incident is allowed to break blocks. Snapshot the world around a player
+// at maximum notice and confirm nothing changed.
+const destructive = world.addPlayer(new Player("Ev-blocks", overworld, { x: 7400.5, y: 0, z: 7400.5 }));
+destructive.setDynamicProperty("nx:notice", 100);
+const overridesBefore = overworld.overrides.size;
+for (let i = 0; i < 1200; i++) {
+  system.currentTick += 20;
+  Events.tick([destructive]);
+}
+console.log(`  ${overworld.overrides.size - overridesBefore} blocks changed by 20 minutes of incidents`);
+check(overworld.overrides.size === overridesBefore, "incidents must never place or break a block");
+
+// ---------------------------------------------------------------------------
 
 console.log("");
 if (failures) {

@@ -9,6 +9,7 @@ item.nx:tallow_candle.name=Tallow Candle
 entity.nx:watcher.name=
 entity.nx:kindler.name=
 entity.nx:hollow.name=
+entity.nx:gaunt.name=
 
 pack.name=Notice
 pack.description=The longer you're alone in the dark, the closer something is allowed to stand behind you.

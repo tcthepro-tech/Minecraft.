@@ -33,6 +33,17 @@
       "textures": [
         "Texture.default"
       ]
+    },
+    "controller.render.nx_gaunt": {
+      "geometry": "Geometry.default",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
     }
   }
 }

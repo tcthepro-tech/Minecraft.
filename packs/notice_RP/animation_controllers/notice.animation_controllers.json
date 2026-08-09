@@ -1,0 +1,59 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.nx_watcher": {
+      "initial_state": "shut",
+      "states": {
+        "shut": {
+          "animations": [
+            "closed"
+          ],
+          "blend_transition": 0.6,
+          "transitions": [
+            {
+              "gape": "q.property('nx:maw')"
+            }
+          ]
+        },
+        "gape": {
+          "animations": [
+            "maw"
+          ],
+          "blend_transition": 0.4,
+          "transitions": [
+            {
+              "shut": "!q.property('nx:maw')"
+            }
+          ]
+        }
+      }
+    },
+    "controller.animation.nx_gaunt": {
+      "initial_state": "walking",
+      "states": {
+        "walking": {
+          "animations": [
+            "walk"
+          ],
+          "blend_transition": 1.2,
+          "transitions": [
+            {
+              "halted": "!q.property('nx:walking')"
+            }
+          ]
+        },
+        "halted": {
+          "animations": [
+            "halt"
+          ],
+          "blend_transition": 0.9,
+          "transitions": [
+            {
+              "walking": "q.property('nx:walking')"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

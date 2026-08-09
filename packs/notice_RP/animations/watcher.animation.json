@@ -1,0 +1,91 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.nx_watcher.closed": {
+      "loop": true,
+      "animation_length": 0.5,
+      "bones": {
+        "jaw": {
+          "rotation": [
+            3,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "animation.nx_watcher.maw": {
+      "loop": true,
+      "animation_length": 2.4,
+      "bones": {
+        "jaw": {
+          "rotation": {
+            "0.0": [
+              3,
+              0,
+              0
+            ],
+            "0.5": [
+              46,
+              0,
+              0
+            ],
+            "1.2": [
+              41,
+              0,
+              0
+            ],
+            "1.8": [
+              47,
+              0,
+              0
+            ],
+            "2.4": [
+              43,
+              0,
+              0
+            ]
+          }
+        },
+        "hornL1": {
+          "rotation": {
+            "0.0": [
+              0,
+              0,
+              0
+            ],
+            "1.2": [
+              -3,
+              0,
+              -2
+            ],
+            "2.4": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "hornR1": {
+          "rotation": {
+            "0.0": [
+              0,
+              0,
+              0
+            ],
+            "1.2": [
+              -3,
+              0,
+              2
+            ],
+            "2.4": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      }
+    }
+  }
+}

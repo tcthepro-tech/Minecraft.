@@ -2,21 +2,21 @@
   "format_version": "1.10.0",
   "minecraft:client_entity": {
     "description": {
-      "identifier": "nx:watcher",
+      "identifier": "nx:gaunt",
       "min_engine_version": "1.21.20",
       "materials": {
         "default": "entity_alphatest"
       },
       "textures": {
-        "default": "textures/entity/watcher"
+        "default": "textures/entity/gaunt"
       },
       "geometry": {
         "default": "geometry.nx_watcher"
       },
       "animations": {
-        "closed": "animation.nx_watcher.closed",
-        "maw": "animation.nx_watcher.maw",
-        "ctrl": "controller.animation.nx_watcher"
+        "walk": "animation.nx_gaunt.walk",
+        "halt": "animation.nx_gaunt.halt",
+        "ctrl": "controller.animation.nx_gaunt"
       },
       "scripts": {
         "animate": [
@@ -24,7 +24,7 @@
         ]
       },
       "render_controllers": [
-        "controller.render.nx_watcher"
+        "controller.render.nx_gaunt"
       ]
     }
   }

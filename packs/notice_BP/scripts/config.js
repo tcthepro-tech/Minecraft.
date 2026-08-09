@@ -139,6 +139,16 @@ export const WATCHER = {
 
   /** Never place within this distance of the player, whatever notice says. */
   MIN_ABSOLUTE: 4.5,
+
+  /**
+   * The one exception to "it never animates". Above this notice, a Watcher
+   * being actively stared at may open its maw — silently, once, as the last
+   * thing before it goes. Everything else about the model is frozen.
+   */
+  MAW_MIN_NOTICE: 72,
+  /** Ticks of staring before the maw is even considered. */
+  MAW_AFTER: 60,
+  MAW_CHANCE: 0.35,
 };
 
 export const HOLLOW = {
@@ -168,6 +178,46 @@ export const KINDLER = {
   LIFETIME: 2400,
 };
 
+/**
+ * The Gaunt: the Watcher's geometry at three times the scale, walking the
+ * horizon. It is scenery with a pulse — it never approaches, and the distance
+ * floor below is enforced on every single stride.
+ */
+export const GAUNT = {
+  ID: "nx:gaunt",
+  /** Only once the curve is genuinely near the top. */
+  THRESHOLD: 70,
+  SPAWN_DISTANCE: [64, 110],
+  /** It may never come closer than this, whatever its heading says. */
+  MIN_DISTANCE: 45,
+  DESPAWN_DISTANCE: 170,
+  /** Blocks per second. Slow: at ten blocks tall, a normal pace reads as scuttling. */
+  SPEED: 1.6,
+  LIFETIME: 1800,
+  /** Ticks between spawn attempts, and the chance each attempt takes. */
+  PERIOD: 9000,
+  CHANCE: 0.45,
+  /** Forced absence after one leaves. */
+  COOLDOWN: 12000,
+  /** Ticks of sustained observation before it stops walking and turns to you. */
+  STARE_LIMIT: 90,
+  STARE_GAIN: 4,
+  OBSERVE_DOT: 0.5,
+};
+
+/**
+ * One-shot incidents. Rare, short, never destructive, never damaging, and
+ * never a reliable tell that the Watcher is about to appear.
+ */
+export const EVENTS = {
+  THRESHOLD: 12,
+  /** Seconds between incidents, at the threshold and at maximum notice. */
+  MAX_PERIOD: 200,
+  MIN_PERIOD: 45,
+  /** How many recent incidents are excluded from the next draw. */
+  NO_REPEAT: 3,
+};
+
 export const STRUCTURE = {
   /** Apertures only cut into rock, and only when something is already listening. */
   MIN_NOTICE: 40,
@@ -179,8 +229,19 @@ export const STRUCTURE = {
   CHANCE_MIN: 0.05,
   CHANCE_MAX: 0.3,
   PLACE_DISTANCE: [28, 56],
-  /** How many aperture sites the world remembers (for de-duplication). */
+  /** How many sites the world remembers (for de-duplication). */
   MEMORY: 40,
+
+  /** The Effigy: a ring of standing stones, on the surface, at night. */
+  EFFIGY_MIN_NOTICE: 30,
+  EFFIGY_CHANCE: 0.22,
+
+  /** The Ossuary: a bone-lined chamber, shallower and commoner than an Aperture. */
+  OSSUARY_MIN_NOTICE: 26,
+  OSSUARY_MAX_Y: 48,
+  OSSUARY_CHANCE: 0.3,
+  /** Opening an ossuary chest. Less than an Aperture, but not nothing. */
+  OSSUARY_GAIN: 8,
 };
 
 export const FOG = {
@@ -205,6 +266,11 @@ export const SFX = {
   STARE: "mob.enderman.stare",
   KINDLE: "random.click",
   GUTTER: "random.fizz",
+  DOOR_OPEN: "random.door_open",
+  CHEST_OPEN: "random.chestopen",
+  CHEST_CLOSE: "random.chestclosed",
+  /** Pitched far down, this is the only sound the Gaunt ever makes. */
+  FAR: "mob.ghast.moan",
 };
 
 export const PROP = {
