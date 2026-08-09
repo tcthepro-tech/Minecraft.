@@ -22,6 +22,16 @@ export const NOTICE = {
   /** Evaluation cadence for the notice model, in ticks. */
   EVAL_INTERVAL: 20,
 
+  /**
+   * Global accrual multiplier, settable in game with `/scriptevent nx:intensity`.
+   *
+   * The default used to be 1.0, which put first contact at 3.3 minutes of
+   * unbroken dark solitude. That is a defensible slow burn and a terrible first
+   * five minutes: a player who loads the pack, looks around a lit base and sees
+   * nothing has no way to tell it from a pack that failed to install.
+   */
+  INTENSITY: 1.6,
+
   // --- Accrual (per evaluation, i.e. per second) ---------------------------
 
   /** Alone: no other player within SOLITUDE_RADIUS. */
@@ -251,26 +261,52 @@ export const FOG = {
 };
 
 /**
- * Vanilla Bedrock sound events only. The pack ships no audio of its own, which
- * means nothing here can ever sound like "a mod sound" — it all sounds like
- * the game, played slightly wrong.
+ * Audio.
+ *
+ * `nx.*` are the pack's own, synthesised by tools/gen_sounds.py and shipped as
+ * Ogg Vorbis. Everything that should sound like the world rather than like a
+ * creature stays on vanilla Bedrock events at odd pitches — a door closing
+ * somewhere is far more unsettling as the game's real door sound than as
+ * anything bespoke.
  */
 export const SFX = {
-  BREATH: "mob.warden.nearby_close",
-  HEART: "mob.warden.heartbeat",
-  LISTEN: "mob.warden.listening",
+  // --- The pack's own ------------------------------------------------------
+  /** Close, wet, and under 1.2 kHz. Reads as large rather than sharp. */
+  BREATH: "nx.breath",
+  /** Sub-bass bed. Three detuned partials that never settle into a pitch. */
+  DRONE: "nx.drone",
+  /** Syllables without words. The brain supplies the language. */
+  WHISPER: "nx.whisper",
+  /**
+   * Plays when you *look* at the Watcher — never when it arrives. It is a
+   * presence tone, not a sting: no transient, nothing to flinch at. Silence
+   * still never means safety.
+   */
+  STARE: "nx.stare",
+  /** The grin coming apart. The pitch falls as it opens. */
+  MAW: "nx.maw",
+  /** Enormous and far away. Almost no high end, because distance eats it. */
+  FAR: "nx.gaunt_call",
+  /** A footfall from something with a very long stride. */
+  FAR_STEP: "nx.far_step",
+  SCRAPE: "nx.scrape",
+  HEART: "nx.heart",
+  KNOCK: "nx.knock",
+  CHORUS: "nx.chorus",
+  /** Only ever heard after it has already gone. */
+  VANISH: "nx.vanish",
+  LISTEN: "nx.listen",
+
+  // --- Vanilla: the world, not the creature --------------------------------
   CAVE: "ambient.cave",
   DOOR: "random.door_close",
+  DOOR_OPEN: "random.door_open",
   STEP: "dig.gravel",
   SETTLE: "dig.stone",
-  STARE: "mob.enderman.stare",
   KINDLE: "random.click",
   GUTTER: "random.fizz",
-  DOOR_OPEN: "random.door_open",
   CHEST_OPEN: "random.chestopen",
   CHEST_CLOSE: "random.chestclosed",
-  /** Pitched far down, this is the only sound the Gaunt ever makes. */
-  FAR: "mob.ghast.moan",
 };
 
 export const PROP = {

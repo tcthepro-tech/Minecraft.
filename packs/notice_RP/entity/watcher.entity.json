@@ -3,7 +3,7 @@
   "minecraft:client_entity": {
     "description": {
       "identifier": "nx:watcher",
-      "min_engine_version": "1.21.20",
+      "min_engine_version": "1.21.60",
       "materials": {
         "default": "entity_alphatest"
       },

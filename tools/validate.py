@@ -217,6 +217,40 @@ def main():
     if missing:
         fail(f"config.js references undefined fog settings: {sorted(missing)}")
 
+    # --- sounds: script id -> sound_definitions -> file on disk --------------
+    #
+    # Bedrock swallows a missing sound event entirely: playSound just does
+    # nothing. That is indistinguishable from a volume problem, so the chain is
+    # checked here instead.
+    defs_path = RP / "sounds" / "sound_definitions.json"
+    defined_sounds = {}
+    if defs_path.exists():
+        defined_sounds = (docs.get(defs_path) or {}).get("sound_definitions", {})
+
+    for event_name, entry in defined_sounds.items():
+        for sound in entry.get("sounds", []):
+            checks += 1
+            rel = sound if isinstance(sound, str) else sound.get("name", "")
+            if not any((RP / f"{rel}{ext}").exists() for ext in (".ogg", ".wav", ".fsb")):
+                fail(f"sound event '{event_name}' points at missing file '{rel}'")
+
+    # Every nx.* id the scripts play must be one of those events.
+    script_src = "\n".join(
+        p.read_text() for p in sorted((BP / "scripts").glob("*.js"))
+    )
+    played = set(re.findall(r'"(nx\.[a-z_]+)"', script_src))
+    for ident in sorted(played):
+        checks += 1
+        if ident not in defined_sounds:
+            fail(f"scripts play '{ident}', which sound_definitions.json does not define")
+
+    # And every event defined should be reachable from somewhere, or it is dead
+    # weight in the download.
+    for event_name in sorted(defined_sounds):
+        checks += 1
+        if event_name not in script_src:
+            fail(f"sound event '{event_name}' is defined but never played")
+
     # --- the item's icon key is registered in the atlas ----------------------
     atlas = docs.get(RP / "textures" / "item_texture.json") or {}
     item = docs.get(BP / "items" / "tallow_candle.json")

@@ -16,6 +16,7 @@ import { clamp, lerp, rand, pick, playSafe, runSafe } from "./util.js";
 const fogTier = new Map(); // playerId -> tier currently pushed
 const nextAmbient = new Map(); // playerId -> tick
 const nextHeart = new Map(); // playerId -> tick
+const nextDrone = new Map(); // playerId -> tick
 
 function applyFog(player) {
   const tier = Notice.tierIndex(player);
@@ -51,10 +52,14 @@ function ambient(player, env) {
   // A `hush` incident is in progress: the bed stays out until it lifts.
   if (isHushed(player)) return;
 
+  // Vanilla events carry the low bands: a cave that sounds like a cave is
+  // more unsettling than one that sounds authored. The pack's own voices only
+  // join once there is something to be afraid of.
   const palette = [SFX.CAVE, SFX.CAVE, SFX.SETTLE];
-  if (p > 0.35) palette.push(SFX.LISTEN);
-  if (p > 0.55) palette.push(SFX.BREATH, SFX.DOOR);
-  if (p > 0.8) palette.push(SFX.BREATH);
+  if (p > 0.25) palette.push(SFX.LISTEN, SFX.KNOCK);
+  if (p > 0.45) palette.push(SFX.SCRAPE, SFX.DOOR);
+  if (p > 0.6) palette.push(SFX.BREATH, SFX.WHISPER);
+  if (p > 0.8) palette.push(SFX.BREATH, SFX.WHISPER);
 
   const angle = rand(0, Math.PI * 2);
   const r = lerp(18, 5, p);
@@ -68,6 +73,32 @@ function ambient(player, env) {
     location: at,
     volume: clamp(0.18 + p * 0.55, 0.15, 0.85),
     pitch: rand(0.45, 0.85),
+  });
+}
+
+/**
+ * A nine-second sub-bass bed, laid under everything from the second band up.
+ * It is barely audible on its own and does most of the pack's work: by the
+ * time a player notices it is there, it has been there for minutes.
+ */
+function drone(player) {
+  const notice = Notice.get(player);
+  if (notice < 22) return;
+
+  const now = system.currentTick;
+  const due = nextDrone.get(player.id) ?? now + rand(100, 400);
+  if (now < due) {
+    nextDrone.set(player.id, due);
+    return;
+  }
+  const p = Notice.pressure(player);
+  // Overlap slightly at high pressure so the bed never fully lifts.
+  nextDrone.set(player.id, now + Math.round(lerp(320, 168, p)));
+
+  playSafe(player, SFX.DRONE, {
+    location: player.location,
+    volume: clamp(0.2 + p * 0.5, 0.18, 0.7),
+    pitch: lerp(1.0, 0.82, p),
   });
 }
 
@@ -89,8 +120,8 @@ function heartbeat(player) {
 
   playSafe(player, SFX.HEART, {
     location: player.location,
-    volume: clamp(0.25 + p * 0.45, 0.2, 0.75),
-    pitch: lerp(0.85, 1.15, p),
+    volume: clamp(0.35 + p * 0.5, 0.3, 0.9),
+    pitch: lerp(0.92, 1.12, p),
   });
 }
 
@@ -138,6 +169,7 @@ export function tick(player, env) {
     applyFog(player);
     threshold(player);
     stareHush(player);
+    drone(player);
     ambient(player, env);
   } catch {
     /* atmosphere is cosmetic; never let it break the model */
@@ -159,5 +191,6 @@ export function forget(playerId) {
   fogTier.delete(playerId);
   nextAmbient.delete(playerId);
   nextHeart.delete(playerId);
+  nextDrone.delete(playerId);
   lastTier.delete(playerId);
 }

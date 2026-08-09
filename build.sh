@@ -5,8 +5,18 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-echo "==> regenerating textures"
+echo "==> regenerating creature (geometry + textures)"
+python3 tools/gen_creature.py
+
+echo
+echo "==> regenerating other textures"
 python3 tools/gen_textures.py
+
+echo
+echo "==> regenerating sounds"
+# Skips cleanly if numpy/scipy/soundfile are absent; the committed .ogg files
+# are what ship, so a contributor without the audio toolchain can still build.
+python3 tools/gen_sounds.py || echo "   (skipped: pip install numpy scipy soundfile)"
 
 echo
 echo "==> validating pack structure"

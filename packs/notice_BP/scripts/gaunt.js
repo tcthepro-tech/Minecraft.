@@ -96,10 +96,11 @@ function spawn(player) {
     heading,
     stareTicks: 0,
     halted: false,
+    lastStep: system.currentTick,
   });
 
-  // One distant sound, well below the pitch of anything else in the pack.
-  playSafe(player, SFX.FAR, { location: spot, volume: 1.0, pitch: 0.35 });
+  // One enormous, distant call. Nothing else in the pack reaches this low.
+  playSafe(player, SFX.FAR, { location: spot, volume: 1.0, pitch: 1.0 });
 }
 
 /**
@@ -150,6 +151,15 @@ function stride(player, record, entity) {
   }
   next.y = ground;
 
+  // A footfall every half stride. The walk animation is 3.6 seconds a cycle,
+  // so 36 ticks puts the sound under each hoof as it lands.
+  if (system.currentTick - record.lastStep >= 36) {
+    record.lastStep = system.currentTick;
+    playSafe(player, SFX.FAR_STEP, {
+      location: here, volume: 0.9, pitch: rand(0.94, 1.06),
+    });
+  }
+
   try {
     entity.teleport(next, {
       dimension: entity.dimension,
@@ -179,7 +189,7 @@ function halt(player, record, entity) {
   } catch {
     /* pose stays as it was */
   }
-  playSafe(player, SFX.FAR, { location: entity.location, volume: 0.8, pitch: 0.3 });
+  playSafe(player, SFX.FAR, { location: entity.location, volume: 0.85, pitch: 0.85 });
   Notice.add(player, GAUNT.STARE_GAIN);
 }
 
@@ -278,6 +288,15 @@ export function sweep() {
       /* dimension not loaded */
     }
   }
+}
+
+/** Diagnostic entry point: spawn one immediately, bypassing every gate. */
+export function summonNear(player) {
+  spawn(player);
+  const record = state.get(player.id);
+  if (!record) return undefined;
+  const entity = entityOf(record);
+  return entity ? entity.location : undefined;
 }
 
 export function isPresent(player) {

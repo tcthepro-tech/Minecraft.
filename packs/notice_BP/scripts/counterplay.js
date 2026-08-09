@@ -1,6 +1,5 @@
-import { NOTICE, SFX } from "./config.js";
+import { SFX } from "./config.js";
 import * as Notice from "./notice.js";
-import * as Watcher from "./watcher.js";
 import { playSafe } from "./util.js";
 
 /**
@@ -58,32 +57,5 @@ export function onItemUse(event) {
     }
   } catch {
     /* if the item cannot be consumed the effect still applies; not worth failing over */
-  }
-}
-
-/**
- * `/scriptevent nx:state` — the only diagnostic, and it is deliberately blunt.
- * Showing the number permanently would defeat the entire design; showing it on
- * request is how you tune the pack.
- */
-export function onScriptEvent(event) {
-  const player = event.sourceEntity;
-  if (!player || typeof player.onScreenDisplay === "undefined") return;
-
-  if (event.id === "nx:state") {
-    const n = Notice.get(player).toFixed(1);
-    const f = Notice.getFloor(player).toFixed(1);
-    const r = Watcher.permittedRadius(player, Watcher.stealthTier(player)).toFixed(1);
-    player.sendMessage(
-      `§7notice §f${n}§7/${NOTICE.MAX}  floor §f${f}  tier §f${Notice.tierIndex(player)}` +
-        `  stealth §f${Watcher.stealthTier(player)}  permitted §f${r}m` +
-        `  present §f${Watcher.isPresent(player) ? "yes" : "no"}`
-    );
-  } else if (event.id === "nx:set") {
-    const value = Number.parseFloat(event.message);
-    if (Number.isFinite(value)) {
-      Notice.add(player, value - Notice.get(player));
-      player.sendMessage(`§7notice set to §f${Notice.get(player).toFixed(1)}`);
-    }
   }
 }

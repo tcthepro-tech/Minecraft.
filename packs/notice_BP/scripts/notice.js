@@ -1,4 +1,4 @@
-import { system } from "@minecraft/server";
+import { system, world } from "@minecraft/server";
 import { NOTICE, TIERS, PROP, LIGHT_SOURCES } from "./config.js";
 import { clamp, lerp, safeBlock, seesSky, isDaytime, dist } from "./util.js";
 
@@ -9,6 +9,30 @@ import { clamp, lerp, safeBlock, seesSky, isDaytime, dist } from "./util.js";
  * escalation state — structures, fog, audio and both support entities all
  * derive from this, which is why the dread scales smoothly instead of spiking.
  */
+
+/**
+ * The accrual multiplier, persisted on the world so it survives a reload.
+ * Only ever scales *gains* — decay and the floor are untouched, so turning it
+ * up makes the pack faster, never harder to escape.
+ */
+let intensityCache;
+
+export function intensity() {
+  if (intensityCache === undefined) {
+    const stored = world.getDynamicProperty("nx:intensity");
+    intensityCache = typeof stored === "number" && stored > 0 ? stored : NOTICE.INTENSITY;
+  }
+  return intensityCache;
+}
+
+export function setIntensity(value) {
+  intensityCache = value;
+  try {
+    world.setDynamicProperty("nx:intensity", value);
+  } catch {
+    /* the setting simply will not persist */
+  }
+}
 
 export function get(player) {
   const n = player.getDynamicProperty(PROP.NOTICE);
@@ -205,6 +229,8 @@ export function evaluate(player, players) {
 
   if (dark) gain += NOTICE.DARK_GAIN;
 
+  gain *= intensity();
+
   if (candleLit(player)) {
     gain *= NOTICE.CANDLE_GAIN_MULT;
     easeFloor(player, NOTICE.CANDLE_FLOOR_DECAY);
@@ -221,6 +247,17 @@ export function evaluate(player, players) {
   else set(player, get(player) + net); // decay must not raise the floor
 
   return { lit, daylight, dark, alone, nearestPlayer, aloneFor };
+}
+
+/**
+ * Set notice directly, ignoring the floor in the downward direction. Only the
+ * diagnostic command uses this — the model itself must never move the number
+ * below the floor.
+ */
+export function force(player, value) {
+  const v = clamp(value, 0, NOTICE.MAX);
+  player.setDynamicProperty(PROP.FLOOR, Math.min(getFloor(player), v));
+  player.setDynamicProperty(PROP.NOTICE, v);
 }
 
 /** Called once when a player first joins, so the properties always exist. */

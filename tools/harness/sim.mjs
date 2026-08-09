@@ -483,6 +483,57 @@ console.log(`  ${overworld.overrides.size - overridesBefore} blocks changed by 2
 check(overworld.overrides.size === overridesBefore, "incidents must never place or break a block");
 
 // ---------------------------------------------------------------------------
+// Scenario 8 — the diagnostic commands actually work
+// ---------------------------------------------------------------------------
+//
+// These exist because a player reported the pack doing nothing, which is what
+// a slow-burn horror pack looks like when it is working *and* when it has
+// silently failed to load. If the summon path breaks, that distinction is
+// gone again, so it gets a test.
+
+console.log("\nscenario: diagnostics");
+
+const Commands = await import("../../packs/notice_BP/scripts/commands.js");
+
+const tester = world.addPlayer(new Player("Tester", overworld, { x: 9000.5, y: 0, z: 9000.5 }));
+tester.setDynamicProperty("nx:notice", 0);
+tester.rotation = { x: 0, y: 0 };
+
+Commands.onScriptEvent({ id: "nx:here", message: "", sourceEntity: tester });
+const summoned = overworld.getEntities({ type: WATCHER.ID })
+  .filter((e) => e.hasTag("nx_summoned"));
+console.log(`  nx:here at notice 0 -> ${summoned.length} Watcher(s) spawned`);
+check(summoned.length === 1, "nx:here must summon a Watcher regardless of notice");
+
+if (summoned.length) {
+  const d = Math.hypot(summoned[0].location.x - tester.location.x,
+    summoned[0].location.z - tester.location.z);
+  check(d > 2 && d < 16, `the summon must land in front of the player (got ${d.toFixed(1)}m)`);
+}
+
+const soundsBefore = world.sounds.length;
+Commands.onScriptEvent({ id: "nx:sounds", message: "", sourceEntity: tester });
+for (let i = 0; i < 900; i++) system.step();
+const playedIds = new Set(world.sounds.slice(soundsBefore).map((s) => s.id));
+const custom = [...playedIds].filter((id) => id.startsWith("nx."));
+console.log(`  nx:sounds played ${custom.length} custom events`);
+check(custom.length >= 13, `the audio test must play every custom sound (got ${custom.length})`);
+
+Commands.onScriptEvent({ id: "nx:set", message: "88", sourceEntity: tester });
+check(Math.abs(Notice.get(tester) - 88) < 0.01, "nx:set must set notice exactly");
+
+Commands.onScriptEvent({ id: "nx:intensity", message: "3", sourceEntity: tester });
+check(Notice.intensity() === 3, "nx:intensity must change the multiplier");
+Notice.setIntensity(1.6);
+
+Commands.onScriptEvent({ id: "nx:clear", message: "", sourceEntity: tester });
+check(overworld.getEntities({ type: WATCHER.ID }).filter((e) => e.hasTag("nx_summoned")).length === 0,
+  "nx:clear must remove summoned entities");
+
+console.log(`  ${tester.messages.length} diagnostic lines returned to the player`);
+check(tester.messages.length > 0, "commands must reply to the player");
+
+// ---------------------------------------------------------------------------
 
 console.log("");
 if (failures) {

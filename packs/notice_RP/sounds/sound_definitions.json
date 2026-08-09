@@ -1,0 +1,148 @@
+{
+  "format_version": "1.14.0",
+  "sound_definitions": {
+    "nx.breath": {
+      "category": "hostile",
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/breath",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.drone": {
+      "category": "ambient",
+      "max_distance": 96.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/drone",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.whisper": {
+      "category": "ambient",
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/whisper",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.stare": {
+      "category": "hostile",
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/stare",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.maw": {
+      "category": "hostile",
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/maw",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.gaunt_call": {
+      "category": "hostile",
+      "max_distance": 96.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/gaunt_call",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.far_step": {
+      "category": "hostile",
+      "max_distance": 96.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/far_step",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.scrape": {
+      "category": "ambient",
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/scrape",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.heart": {
+      "category": "player",
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/heart",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.knock": {
+      "category": "ambient",
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/knock",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.chorus": {
+      "category": "hostile",
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/chorus",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.vanish": {
+      "category": "hostile",
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/vanish",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    },
+    "nx.listen": {
+      "category": "ambient",
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/nx/listen",
+          "volume": 1.0,
+          "stream": false
+        }
+      ]
+    }
+  }
+}

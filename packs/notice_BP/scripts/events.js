@@ -86,6 +86,7 @@ const INCIDENTS = [
     /** A door opens and closes somewhere you have not built a door. */
     run(player) {
       const spot = spotNear(player, 8, 20, false) ?? player.location;
+      playSafe(player, SFX.KNOCK, { location: spot, volume: 0.7, pitch: rand(0.9, 1.1) });
       playSafe(player, SFX.DOOR_OPEN, { location: spot, volume: 0.55, pitch: 0.7 });
       system.runTimeout(() => {
         playSafe(player, SFX.DOOR, { location: spot, volume: 0.6, pitch: 0.65 });
@@ -135,7 +136,7 @@ const INCIDENTS = [
     run(player) {
       const spot = spotNear(player, 2, 5, true);
       if (!spot) return false;
-      playSafe(player, SFX.BREATH, { location: spot, volume: 0.7, pitch: rand(0.3, 0.45) });
+      playSafe(player, SFX.BREATH, { location: spot, volume: 0.85, pitch: rand(0.92, 1.05) });
       return true;
     },
   },
@@ -146,6 +147,7 @@ const INCIDENTS = [
     /** A tremor with no source. Vanilla camerashake, kept well under a jolt. */
     run(player) {
       runSafe(player, "camerashake add @s 0.055 1.4 positional");
+      playSafe(player, SFX.SCRAPE, { location: player.location, volume: 0.6, pitch: 0.75 });
       playSafe(player, SFX.SETTLE, { location: player.location, volume: 0.5, pitch: 0.28 });
       return true;
     },
@@ -180,7 +182,7 @@ const INCIDENTS = [
       } catch {
         return false;
       }
-      playSafe(player, SFX.LISTEN, { location: player.location, volume: 0.3, pitch: 0.5 });
+      playSafe(player, SFX.WHISPER, { location: player.location, volume: 0.75, pitch: 1.0 });
       return true;
     },
   },
@@ -202,7 +204,7 @@ const INCIDENTS = [
     name: "gape",
     min: 72,
     weight: 5,
-    /** If it is in front of you right now, it opens its mouth. Silently. */
+    /** If it is in front of you right now, it opens its mouth. */
     run(player) {
       if (!Watcher.isBeingSeen(player)) return false;
       return Watcher.forceMaw(player);
@@ -238,6 +240,8 @@ const INCIDENTS = [
         }
       }
       if (spawned.length === 0) return false;
+
+      playSafe(player, SFX.CHORUS, { location: player.location, volume: 0.95, pitch: 1.0 });
 
       system.runTimeout(() => {
         for (const e of spawned) {

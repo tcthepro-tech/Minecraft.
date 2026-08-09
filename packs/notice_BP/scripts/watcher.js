@@ -299,11 +299,17 @@ function faceOnce(entity, player) {
   }
 }
 
-function vanish(state, entity, escalate) {
+function vanish(state, entity, escalate, player) {
+  const where = entity?.location;
   try {
     entity?.remove();
   } catch {
     /* already gone */
+  }
+  // Air closing on the space it was standing in. Heard only after the fact,
+  // and only by the player it belonged to.
+  if (player && where) {
+    playSafe(player, SFX.VANISH, { location: where, volume: 0.55, pitch: 1.0 });
   }
   const tier = escalate ? Math.min(state.tier + 1, WATCHER.MAX_STEALTH_TIER) : state.tier;
   state.entityId = undefined;
@@ -364,7 +370,7 @@ function cycle(player, players) {
 
   // Fell out of the world, changed dimension, or drifted out of range.
   if (entity.dimension.id !== player.dimension.id || dist(entity.location, player.location) > 80) {
-    if (!observedByAnyone(entity.dimension, entity.location, players)) vanish(state, entity, false);
+    if (!observedByAnyone(entity.dimension, entity.location, players)) vanish(state, entity, false, player);
     return;
   }
 
@@ -375,7 +381,14 @@ function cycle(player, players) {
     // Step 4 — freeze on sight. It does nothing. That is the whole behaviour.
     if (!state.seen) {
       state.seen = true;
-      playSafe(watcherObserved, SFX.STARE, { location: entity.location, volume: 0.14, pitch: 0.55 });
+      // The presence tone. It plays because you looked, not because it
+      // arrived — so silence still never means safety, and there is still no
+      // cue that would let you brace for it.
+      playSafe(watcherObserved, SFX.STARE, {
+        location: entity.location,
+        volume: clamp(0.35 + Notice.pressure(player) * 0.55, 0.3, 0.95),
+        pitch: 1.0,
+      });
     }
     try {
       entity.clearVelocity();
@@ -401,6 +414,9 @@ function cycle(player, players) {
     ) {
       state.maw = true;
       setProp(entity, "nx:maw", true);
+      playSafe(watcherObserved, SFX.MAW, {
+        location: entity.location, volume: 0.95, pitch: 1.0,
+      });
     }
 
     if (state.stareTicks >= WATCHER.STARE_LIMIT) state.readyToLeave = true;
@@ -412,18 +428,18 @@ function cycle(player, players) {
 
   if (state.readyToLeave) {
     // You looked long enough. It has earned a better hiding place.
-    vanish(state, entity, true);
+    vanish(state, entity, true, player);
     return;
   }
 
   const age = now - state.placedAt;
   if (age > WATCHER.LIFETIME[state.tier]) {
-    vanish(state, entity, false);
+    vanish(state, entity, false, player);
     return;
   }
 
   if (notice < WATCHER.THRESHOLD * 0.6) {
-    vanish(state, entity, false);
+    vanish(state, entity, false, player);
     return;
   }
 
@@ -518,6 +534,7 @@ export function forceMaw(player) {
   const entity = entityOf(state);
   if (!entity) return false;
   state.maw = true;
+  playSafe(player, SFX.MAW, { location: entity.location, volume: 0.95, pitch: 1.0 });
   return setProp(entity, "nx:maw", true);
 }
 

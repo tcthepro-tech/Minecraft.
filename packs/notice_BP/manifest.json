@@ -1,34 +1,54 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Notice — Behavior",
+    "name": "Notice \u2014 Behavior",
     "description": "The longer you're alone in the dark, the closer something is allowed to stand behind you.",
     "uuid": "acdb79cc-8f15-4fca-bbc0-991efb3e4996",
-    "version": [1, 0, 0],
-    "min_engine_version": [1, 21, 20]
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      60
+    ]
   },
   "modules": [
     {
       "type": "data",
       "uuid": "40b96513-8af1-4861-b4fc-5e611042dd9a",
-      "version": [1, 0, 0]
+      "version": [
+        1,
+        0,
+        0
+      ]
     },
     {
       "type": "script",
       "language": "javascript",
       "entry": "scripts/main.js",
       "uuid": "a7441c5d-58db-4c47-a37b-94dad048173b",
-      "version": [1, 0, 0]
+      "version": [
+        1,
+        0,
+        0
+      ]
     }
   ],
   "dependencies": [
     {
       "uuid": "625a6475-76e7-4d39-a372-429fc63820e1",
-      "version": [1, 0, 0]
+      "version": [
+        1,
+        0,
+        0
+      ]
     },
     {
       "module_name": "@minecraft/server",
-      "version": "1.11.0"
+      "version": "1.16.0"
     }
   ]
 }

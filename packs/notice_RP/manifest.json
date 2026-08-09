@@ -1,17 +1,29 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Notice — Resources",
+    "name": "Notice \u2014 Resources",
     "description": "Geometry, fog and silence for the Notice addon.",
     "uuid": "625a6475-76e7-4d39-a372-429fc63820e1",
-    "version": [1, 0, 0],
-    "min_engine_version": [1, 21, 20]
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      60
+    ]
   },
   "modules": [
     {
       "type": "resources",
       "uuid": "8eab6154-5d52-462b-8f82-88ebb22bad80",
-      "version": [1, 0, 0]
+      "version": [
+        1,
+        0,
+        0
+      ]
     }
   ]
 }

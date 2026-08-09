@@ -8,6 +8,7 @@ import * as Structures from "./structures.js";
 import * as Counterplay from "./counterplay.js";
 import * as Gaunt from "./gaunt.js";
 import * as Events from "./events.js";
+import * as Commands from "./commands.js";
 
 /**
  * Notice — wiring.
@@ -76,6 +77,7 @@ system.runInterval(() => {
 
 world.afterEvents.playerSpawn.subscribe((event) => {
   Notice.ensure(event.player);
+  if (event.initialSpawn) Commands.greet(event.player);
   if (!event.initialSpawn) {
     // Respawning after death: the charge releases, the floor does not.
     Notice.onDeath(event.player);
@@ -118,8 +120,14 @@ world.afterEvents.itemUse.subscribe((event) => {
 
 system.afterEvents.scriptEventReceive.subscribe((event) => {
   try {
-    Counterplay.onScriptEvent(event);
-  } catch {
-    /* ignore */
+    Commands.onScriptEvent(event);
+  } catch (err) {
+    // Diagnostics that fail silently are worse than useless, so this one path
+    // surfaces the error instead of swallowing it.
+    try {
+      event.sourceEntity?.sendMessage(`§c${err}`);
+    } catch {
+      /* nothing left to try */
+    }
   }
 });
