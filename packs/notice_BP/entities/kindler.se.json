@@ -1,0 +1,28 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "nx:kindler",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "components": {
+      "_comment": "The Kindler is the pressure valve. It stands still, it never approaches, and standing near it burns notice off faster than daylight does. It is also the only friendly thing in the pack, which is why it looks almost exactly like the thing that isn't.",
+      "minecraft:type_family": { "family": ["nx_presence", "inanimate"] },
+      "minecraft:collision_box": { "width": 0.7, "height": 1.9 },
+      "minecraft:health": { "value": 64, "max": 64 },
+      "minecraft:movement": { "value": 0 },
+      "minecraft:physics": { "has_gravity": false, "has_collision": false },
+      "minecraft:pushable": { "is_pushable": false, "is_pushable_by_piston": false },
+      "minecraft:knockback_resistance": { "value": 1000, "max": 1000 },
+      "minecraft:damage_sensor": {
+        "triggers": [{ "cause": "all", "deals_damage": false }]
+      },
+      "minecraft:fire_immune": true,
+      "minecraft:sound_volume": { "value": 0 },
+      "minecraft:persistent": {},
+      "minecraft:loot": { "table": "loot_tables/empty.json" }
+    }
+  }
+}

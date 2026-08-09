@@ -1,0 +1,42 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.nx_kindler",
+        "texture_width": 64,
+        "texture_height": 64,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 2.5,
+        "visible_bounds_offset": [0, 1, 0]
+      },
+      "bones": [
+        { "name": "root", "pivot": [0, 0, 0] },
+        {
+          "name": "cloak",
+          "parent": "root",
+          "pivot": [0, 0, 0],
+          "cubes": [
+            { "origin": [-5, 0, -4], "size": [10, 22, 8], "uv": [0, 0] }
+          ]
+        },
+        {
+          "name": "hood",
+          "parent": "cloak",
+          "pivot": [0, 22, 0],
+          "cubes": [
+            { "origin": [-4, 22, -3.5], "size": [8, 7, 7], "uv": [0, 32] }
+          ]
+        },
+        {
+          "name": "flame",
+          "parent": "cloak",
+          "pivot": [0, 26, -5],
+          "cubes": [
+            { "origin": [-1, 26, -6], "size": [2, 3, 2], "uv": [40, 0] }
+          ]
+        }
+      ]
+    }
+  ]
+}

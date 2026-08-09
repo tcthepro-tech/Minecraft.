@@ -1,0 +1,21 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "nx:watcher",
+      "min_engine_version": "1.21.20",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/watcher"
+      },
+      "geometry": {
+        "default": "geometry.nx_watcher"
+      },
+      "render_controllers": [
+        "controller.render.nx_watcher"
+      ]
+    }
+  }
+}

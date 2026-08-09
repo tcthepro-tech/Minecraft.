@@ -1,0 +1,28 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:fog_settings": {
+    "description": {
+      "identifier": "nx:dread_2"
+    },
+    "distance": {
+      "air": {
+        "fog_start": 22,
+        "fog_end": 96,
+        "fog_color": "#08090d",
+        "render_distance_type": "fixed"
+      },
+      "weather": {
+        "fog_start": 22,
+        "fog_end": 96,
+        "fog_color": "#08090d",
+        "render_distance_type": "fixed"
+      },
+      "water": {
+        "fog_start": 7,
+        "fog_end": 24,
+        "fog_color": "#08090d",
+        "render_distance_type": "fixed"
+      }
+    }
+  }
+}

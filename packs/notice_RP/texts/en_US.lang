@@ -1,0 +1,14 @@
+## Notice — en_US
+## The pack says as little as it can get away with. Everything named here is
+## either an item the player has to craft or a pack listed in the world menu.
+
+item.nx:tallow_candle.name=Tallow Candle
+
+## The three entities are deliberately unnamed. Nothing in the pack ever tells
+## the player what they saw.
+entity.nx:watcher.name=
+entity.nx:kindler.name=
+entity.nx:hollow.name=
+
+pack.name=Notice
+pack.description=The longer you're alone in the dark, the closer something is allowed to stand behind you.
